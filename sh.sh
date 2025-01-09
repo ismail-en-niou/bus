@@ -17,11 +17,16 @@ else
     exit 1
 fi
 
-# Step 3: Add, commit, and push changes
-git add .  # Stage changes
-git commit -m "Automated commit message"  # Commit changes with a generic message
+# Step 3: Create a random file with random content to ensure changes
+random_string=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 8)
+random_file="file_$random_string.txt"
+echo "$random_string" > "$random_file"
 
-# Step 4: Push changes to the remote branch
+# Step 4: Add, commit, and push changes
+git add .  # Stage changes
+git commit -m "Add $random_file with random content"  # Commit with the file name
+
+# Step 5: Push changes to the remote branch
 git push origin "$branch_to_push"
 
 # Check if the push was successful

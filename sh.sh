@@ -1,30 +1,33 @@
 #!/bin/bash
 
-# Function to generate a random string for file content
-generate_random_string() {
-    tr -dc 'A-Za-z0-9' </dev/urandom | head -c 8
-}
+# Step 1: Set the correct locale for UTF-8
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
 
-# Infinite loop for committing and pushing
-while true; do
-    # Generate a random string
-    random_string=$(generate_random_string)
+# Step 2: Ensure we're on the correct branch (master or main)
+current_branch=$(git symbolic-ref --short HEAD)
 
-    # Generate a random file name
-    random_file="file_$random_string.txt"
+# Check if the branch is 'master' or 'main', and push accordingly
+if [[ "$current_branch" == "master" ]]; then
+    branch_to_push="master"
+elif [[ "$current_branch" == "main" ]]; then
+    branch_to_push="main"
+else
+    echo "Error: You're on an unexpected branch ($current_branch). Please switch to master or main."
+    exit 1
+fi
 
-    # Create a new file with random content
-    echo "$random_string" > "$random_file"
+# Step 3: Add, commit, and push changes
+git add .  # Stage changes
+git commit -m "Automated commit message"  # Commit changes with a generic message
 
-    # Add the file to staging
-    git add "$random_file"
+# Step 4: Push changes to the remote branch
+git push origin "$branch_to_push"
 
-    # Commit the changes with a random message
-    git commit -m "Add $random_file with random content"
-
-    # Push the commit to the repository
-    git push origin main
-
-    # Wait for a random interval between 5 to 10 seconds
-    sleep $((RANDOM % 6 + 5))
-done
+# Check if the push was successful
+if [ $? -eq 0 ]; then
+    echo "Changes successfully pushed to $branch_to_push."
+else
+    echo "Error: Failed to push changes. Please check for issues."
+    exit 1
+fi
